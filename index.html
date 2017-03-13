@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!--
+  ** 三角碎形 **
+========================
+              By. CatMao
+-->
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" />
+<title>Fractal</title>
+<style>
+    canvas{
+        background-color: aliceblue;
+        border-radius: 1em;
+        box-shadow:0.1em 0.1em 0.2em 0.2em rgba(20%,20%,40%,0.5);
+    }
+</style>
+<script>
+    
+    var edge;
+    var index = 0;
+    var PointsX = [];
+    var PointsY = [];
+    
+    var load = function(){
+        
+        // get canvas
+        myCanvas = document.getElementById("myCanvas");
+        ctx      = myCanvas.getContext("2d");
+        
+        // set Listener
+        myCanvas.addEventListener("click", myCanvasOnClick);
+        
+        edge = prompt("Please enter how many edge:", "0");
+    }
+    
+    function DrawLine(p1, p2)
+    {
+        ctx.moveTo(PointsX[p1], PointsY[p1]);
+        ctx.lineTo(PointsX[p2], PointsY[p2]);
+        ctx.stroke();
+    }
+    
+    function Fractal(A, E){
+        var deltaX = (PointsX[E] - PointsX[A]) / 3;
+        var deltaY = (PointsY[E] - PointsY[A]) / 3;
+
+        var x2 = PointsX[A] + deltaX;
+        var y2 = PointsY[A] + deltaY;
+        var x3 = (PointsX[A] + PointsX[E]) / 2 - Math.sqrt(3) * (PointsY[A] - PointsY[E]) / 6;
+        var y3 = (PointsY[A] + PointsY[E]) / 2 - Math.sqrt(3) * (PointsX[E] - PointsX[A]) / 6;
+        var x4 = PointsX[A] + 2 * deltaX;
+        var y4 = PointsY[A] + 2 * deltaY;
+        
+        PointsX.splice(A+1, 0, x2, x3, x4);
+        PointsY.splice(A+1, 0, y2, y3, y4);
+    }
+    
+    function myCanvasOnClick(e){
+        if(index == 0){ // the first dot
+            // get current coordinate and push into Points[]
+            PointsX[index] = e.x;
+            PointsY[index] = e.y;
+            ctx.fillRect(PointsX[index], PointsY[index], 1, 1);
+            index++;
+        }
+        else if(index <= edge){ // not the first dot
+            // get current coordinate and push into Points[]
+            PointsX[index] = e.x - myCanvas.offsetLeft;
+            PointsY[index] = e.y - myCanvas.offsetTop;
+
+            // draw the line
+            DrawLine(index-1, index);
+            index++;
+        }
+        else{ // do the Fractal
+            // 畫布清空方法：https://zzz.buzz/zh/2016/03/28/methods-to-clear-canvas/   
+            myCanvas.width = myCanvas.width; 
+            
+            for(var i = 0; i < PointsX.length - 1; i += 4){
+                Fractal(i, i+1);
+            }
+            // Draw Points
+            for(var i = 0; i < PointsX.length - 1; i++){
+                DrawLine(i, i+1);
+            }
+        }
+    }
+</script>
+</head>
+<body onload="load()">
+    <canvas id="myCanvas" width="800" height="500"></canvas>
+</body>
+</html>
